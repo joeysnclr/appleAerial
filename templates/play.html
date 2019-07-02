@@ -1,0 +1,55 @@
+{% extends 'layout.html' %}
+{% block body %}
+
+<div class="video-player">
+	<video id="display-video" data-vid-id="" autoplay src=""></video>
+</div>
+<script type="text/javascript">
+	document.onkeydown = checkKey;
+	var videos = []
+
+
+	function getVideos() {
+		$.getJSON('/videos.json', function(data) {
+			for (var i in data) {
+				videos.push(data[i]);
+			}
+		});
+	}
+
+	function changeVideo(dir) {
+		vidEl = document.getElementById('display-video')
+		vidEl.style.display = 'none'
+		console.log('hidden')
+		$.getJSON('/static/videos.json', function(videos) {
+			currVidId = Number(vidEl.getAttribute('data-vid-id'))
+			currVid = videos[currVidId]
+			if (dir == 'next') {
+				nextVid = videos[currVid.next]
+			} else {
+				nextVid = videos[currVid.prev]
+			}
+			vidEl.setAttribute('data-vid-id', nextVid.id)
+			vidEl.setAttribute('src', nextVid.url)
+		});
+		console.log('shown')
+		vidEl.style.display = 'block'
+
+	}
+
+	function checkKey(e) {
+		currVidId = Number(document.getElementById('display-video').getAttribute('data-vid-id'))
+	    if (e.key == 'ArrowLeft') {
+	       // left arrow
+	       changeVideo('prev')
+	    }
+	    else if (e.key == 'ArrowRight') {
+	       // right arrow
+	       changeVideo('next')
+	    }
+	}
+
+	changeVideo(0)
+</script>
+
+{% endblock %}
